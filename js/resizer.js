@@ -91,11 +91,6 @@
       this._ctx.lineWidth = 6;
       // Цвет обводки.
       this._ctx.strokeStyle = '#ffe753';
-      // Размер штрихов. Первый элемент массива задает длину штриха, второй
-      // расстояние между соседними штрихами.
-      this._ctx.setLineDash([15, 10]);
-      // Смещение первого штриха от начала линии.
-      this._ctx.lineDashOffset = 7;
 
       // Сохранение состояния канваса.
       // Подробней см. строку 132.
@@ -109,15 +104,39 @@
       // Отрисовка изображения на холсте. Параметры задают изображение, которое
       // нужно отрисовать и координаты его верхнего левого угла.
       // Координаты задаются от центра холста.
+
       this._ctx.drawImage(this._image, displX, displY);
 
-      // Отрисовка прямоугольника, обозначающего область изображения после
-      // кадрирования. Координаты задаются от центра.
-      this._ctx.strokeRect(
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2);
+      // координаты левого верхнего и правого нижнего угла зиг-заг прямоугольника
+      // взяты из начального кода отрисовки рамки
+      var x0 = (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2;
+      var y0 = (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2;
+      var x1 = this._resizeConstraint.side / 2 - this._ctx.lineWidth / 2;
+      var y1 = this._resizeConstraint.side / 2 - this._ctx.lineWidth / 2;
+
+      // ставим прозрачность 0.8
+      this._ctx.fillStyle = 'rgba(0,0,0,0.8)';
+      this._ctx.beginPath();
+
+      // рисуем зиг-заг прямоугольник
+      zigzagRect(this._ctx, x0, y0, x1, y1);
+
+      // после этого обводим рамку по внешнему периметру
+      this._ctx.lineTo(0 - this._container.width / 2, 0 - this._container.height / 2);
+      this._ctx.lineTo(0 - this._container.width / 2, this._container.height / 2);
+      this._ctx.lineTo(this._container.width / 2, this._container.height / 2);
+      this._ctx.lineTo(this._container.width / 2, 0 - this._container.height / 2);
+      this._ctx.lineTo(0 - this._container.width / 2, 0 - this._container.height / 2);
+      // заливаем получившуюся фигуру
+      this._ctx.fill();
+
+      // рисуем центрированный текст
+      var sizeMessage = (this._image.naturalWidth + ' x ' + this._image.naturalHeight);
+      this._ctx.fillStyle = '#FFF';
+      this._ctx.textAlign = 'center';
+      this._ctx.textBaseline = 'bottom';
+      this._ctx.font = 'normal 30px Arial';
+      this._ctx.fillText(sizeMessage, x0 + (x1 - x0) / 2, y0);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
@@ -312,6 +331,77 @@
   var Coordinate = function(x, y) {
     this.x = x;
     this.y = y;
+  };
+
+  var zigzagRect = function(ctx, x0, y0, x1, y1) {
+    var xStart = x0;
+    var yStart = y0;
+
+    ctx.fillColor = 'black';
+    ctx.moveTo(x0, y0);
+    ctx.beginPath();
+    // длина зиг-заг линии
+    var line = 5;
+
+    var step = 0;
+
+    // слева направо - двигаемся по ox
+    while (x0 < x1) {
+      if (step % 2 === 0) {
+        x0 = x0 + line;
+        y0 = y0 + Math.abs(line);
+        ctx.lineTo(x0, y0);
+      } else {
+        x0 = x0 + line;
+        y0 = y0 - Math.abs(line);
+        ctx.lineTo(x0, y0);
+      }
+      step++;
+    }
+
+    // потом вниз  - двигаемся по oy
+    while (y0 < y1) {
+      if (step % 2 === 0) {
+        x0 = x0 + Math.abs(line);
+        y0 = y0 + line;
+        ctx.lineTo(x0, y0);
+      } else {
+        x0 = x0 - Math.abs(line);
+        y0 = y0 + line;
+        ctx.lineTo(x0, y0);
+      }
+      step++;
+    }
+
+    line = line * -1;
+    // налево
+    while (x0 > xStart) {
+      if (step % 2 === 0) {
+        x0 = x0 + line;
+        y0 = y0 + Math.abs(line);
+        ctx.lineTo(x0, y0);
+      } else {
+        x0 = x0 + line;
+        y0 = y0 - Math.abs(line);
+        ctx.lineTo(x0, y0);
+      }
+      step++;
+    }
+
+    // замыкаем вверх
+    while (y0 + line > yStart ) {
+      if (step % 2 === 0) {
+        x0 = x0 + Math.abs(line);
+        y0 = y0 + line;
+        ctx.lineTo(x0, y0);
+      } else {
+        x0 = x0 - Math.abs(line);
+        y0 = y0 + line;
+        ctx.lineTo(x0, y0);
+      }
+      step++;
+    }
+    ctx.stroke();
   };
 
   window.Resizer = Resizer;
