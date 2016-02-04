@@ -180,9 +180,13 @@
    * Обработка изменения формы кадрирования. Делает кнопку submit enabled/disabled.
    * @param {Event} evt
    */
-  resizeForm.onchange = function() {
-    if (resizeXField.value + resizeSizeField.value > currentResizer._image.naturalWidth ||
-        resizeYField.value + resizeSizeField.value > currentResizer._image.naturalHeight) {
+  resizeForm.onchange = function () {
+    // вынес в отдельные переменные для лучшей читаемости
+    var x = +resizeXField.value;
+    var y = +resizeYField.value;
+    var size = +resizeSizeField.value;
+    if (x + size > currentResizer._image.naturalWidth ||
+        y + size > currentResizer._image.naturalHeight) {
       resizeBtn.disabled = true;
     } else {
       resizeBtn.disabled = false;
