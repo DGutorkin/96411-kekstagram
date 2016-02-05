@@ -23,10 +23,6 @@
     CUSTOM: 2
   };
 
-  var resizeXField = document.getElementById('resize-x');
-  var resizeYField = document.getElementById('resize-y');
-  var resizeSizeField = document.getElementById('resize-size');
-  var resizeBtn = document.getElementById('resize-fwd');
 
   /**
    * Регулярное выражение, проверяющее тип загружаемого файла. Составляется
@@ -77,7 +73,19 @@
    * @return {boolean}
    */
   function resizeFormIsValid() {
-    return resizeXField.value < 0 || resizeYField.value < 0 ? false : true;
+    var resizeXField = +document.getElementById('resize-x').value;
+    var resizeYField = +document.getElementById('resize-y').value;
+    var resizeSizeField = +document.getElementById('resize-size').value;
+    var resizeBtn = document.getElementById('resize-fwd');
+
+    if (resizeXField + resizeSizeField > currentResizer._image.naturalWidth ||
+        resizeYField + resizeSizeField > currentResizer._image.naturalHeight) {
+      resizeBtn.disabled = true;
+    } else {
+      resizeBtn.disabled = false;
+    }
+
+    return resizeXField < 0 || resizeYField < 0 ? false : true;
   }
 
   /**
@@ -180,17 +188,9 @@
    * Обработка изменения формы кадрирования. Делает кнопку submit enabled/disabled.
    * @param {Event} evt
    */
-  resizeForm.onchange = function () {
+  resizeForm.onchange = function() {
     // вынес в отдельные переменные для лучшей читаемости
-    var x = +resizeXField.value;
-    var y = +resizeYField.value;
-    var size = +resizeSizeField.value;
-    if (x + size > currentResizer._image.naturalWidth ||
-        y + size > currentResizer._image.naturalHeight) {
-      resizeBtn.disabled = true;
-    } else {
-      resizeBtn.disabled = false;
-    }
+    resizeFormIsValid();
   };
 
   /**
