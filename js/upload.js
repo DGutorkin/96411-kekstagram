@@ -158,9 +158,9 @@
     filterImage.className = 'filter-image-preview ' + filterMap[filterName];
 
     // сохраняем в кукис
-    var myBirthDay = new Date('1987-07-12');
+    var closestDoB = new Date('2015-07-12');
     var dateToExpire = new Date(
-      Date.now() + (Date.now() - myBirthDay)
+      Date.now() + (Date.now() - closestDoB)
     ).toUTCString();
 
     docCookies.setItem('filter', filterName, dateToExpire);
