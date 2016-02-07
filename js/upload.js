@@ -23,6 +23,7 @@
     CUSTOM: 2
   };
 
+
   /**
    * Регулярное выражение, проверяющее тип загружаемого файла. Составляется
    * из ключей FileType.
@@ -72,7 +73,19 @@
    * @return {boolean}
    */
   function resizeFormIsValid() {
-    return true;
+    var resizeXField = +document.getElementById('resize-x').value;
+    var resizeYField = +document.getElementById('resize-y').value;
+    var resizeSizeField = +document.getElementById('resize-size').value;
+    var resizeBtn = document.getElementById('resize-fwd');
+
+    if (resizeXField + resizeSizeField > currentResizer._image.naturalWidth ||
+        resizeYField + resizeSizeField > currentResizer._image.naturalHeight) {
+      resizeBtn.disabled = true;
+    } else {
+      resizeBtn.disabled = false;
+    }
+
+    return resizeXField < 0 || resizeYField < 0 ? false : true;
   }
 
   /**
@@ -169,6 +182,15 @@
         showMessage(Action.ERROR);
       }
     }
+  };
+
+  /**
+   * Обработка изменения формы кадрирования. Делает кнопку submit enabled/disabled.
+   * @param {Event} evt
+   */
+  resizeForm.onchange = function() {
+    // вынес в отдельные переменные для лучшей читаемости
+    resizeFormIsValid();
   };
 
   /**
