@@ -1,4 +1,4 @@
-/* global Resizer: true */
+/* global docCookies: true, Resizer: true */
 
 /**
  * @fileoverview
@@ -145,6 +145,35 @@
     uploadMessage.classList.add('invisible');
   }
 
+  function setFilter(filterName) {
+    if (!filterMap) {
+      // Ленивая инициализация. Объект не создается до тех пор, пока
+      // не понадобится прочитать его в первый раз, а после этого запоминается
+      // навсегда.
+      filterMap = {
+        'none': 'filter-none',
+        'chrome': 'filter-chrome',
+        'sepia': 'filter-sepia'
+      };
+    }
+
+    // подсвечиваем выбранный фильтр
+    document.getElementById('upload-filter-' + filterName).checked = true;
+
+    // Класс перезаписывается, а не обновляется через classList потому что нужно
+    // убрать предыдущий примененный класс. Для этого нужно или запоминать его
+    // состояние или просто перезаписывать.
+    filterImage.className = 'filter-image-preview ' + filterMap[filterName];
+
+    // сохраняем в кукис
+    var closestDoB = new Date('2015-07-12');
+    var dateToExpire = new Date(
+      Date.now() + (Date.now() - closestDoB)
+    ).toUTCString();
+
+    docCookies.setItem('filter', filterName, dateToExpire);
+  }
+
   /**
    * Обработчик изменения изображения в форме загрузки. Если загруженный
    * файл является изображением, считывается исходник картинки, создается
@@ -255,27 +284,20 @@
    * выбранному значению в форме.
    */
   filterForm.onchange = function() {
-    if (!filterMap) {
-      // Ленивая инициализация. Объект не создается до тех пор, пока
-      // не понадобится прочитать его в первый раз, а после этого запоминается
-      // навсегда.
-      filterMap = {
-        'none': 'filter-none',
-        'chrome': 'filter-chrome',
-        'sepia': 'filter-sepia'
-      };
-    }
-
     var selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
       return item.checked;
     })[0].value;
-
-    // Класс перезаписывается, а не обновляется через classList потому что нужно
-    // убрать предыдущий примененный класс. Для этого нужно или запоминать его
-    // состояние или просто перезаписывать.
-    filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
+    setFilter(selectedFilter);
   };
 
   cleanupResizer();
   updateBackground();
+  // выставляем фильтр, если находим его в кукисах
+  if (docCookies.getItem('filter') === null) {
+    setFilter('none');
+  } else {
+    setFilter( docCookies.getItem('filter') );
+  }
+
+
 })();
