@@ -28,6 +28,8 @@
       pictures = JSON.parse(evt.target.response);
       filteredPictures = pictures.slice(0);
       renderPictures(pictures, 0, true);
+      // размазываем по ширине экрана, если необходимо
+      populatePicsOnScreen();
     };
     xhr.onerror = function() {
       container.classList.add('pictures-failure');
@@ -42,6 +44,8 @@
    * @param {int} pageNumber
    * @param {boolean=} replace - флаг, заставляющий чистить контейнер перед
    *        добавлением новых картинок
+   * @returns {boolean} continueRender - возвращает истину, если есть массив
+   * pagePictures не пустой, т.е. есть ещё что порендерить :)
    */
   function renderPictures(picturesToRender, pageNumber, replace) {
     if (replace) {
@@ -58,6 +62,12 @@
       fragment.appendChild(element);
     });
     container.appendChild(fragment);
+
+    if (pagePictures.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   var formFilters = document.querySelector('.filters');
@@ -100,6 +110,7 @@
     }
     currentPage = 0;
     renderPictures(filteredPictures, currentPage, true);
+    populatePicsOnScreen();
   }
 
   // проставляем onclick события для фильтров методом делегирования
@@ -110,11 +121,15 @@
   });
 
   function populatePicsOnScreen() {
-    var containerCoordinates = container.getBoundingClientRect();
+    var containerBottomY = container.getBoundingClientRect().bottom;
+    var continueRender = true;
     // Т.к. футера относительно которого было бы удобно спозиционировать нет, то
-    // рендерим след.порцию по достижению нижней границы контейнера + высота картинки
-    if (containerCoordinates.bottom - PICTURE_HEIGHT <= window.innerHeight) {
-      renderPictures(filteredPictures, ++currentPage);
+    // рендерим след.порцию по достижению нижней границы контейнера + высота картинки /2
+    // и только в том случае, если ещё есть что рендерить (continueRender = true)
+    while (continueRender && containerBottomY - PICTURE_HEIGHT / 2 <= window.innerHeight) {
+      continueRender = renderPictures(filteredPictures, ++currentPage);
+      // пересчитываем координаты контейнера
+      containerBottomY = container.getBoundingClientRect().bottom;
     }
   }
 
