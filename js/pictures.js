@@ -96,14 +96,12 @@
     renderPictures(filteredPictures, currentPage, true);
   }
 
-  // проставляем onclick события для фильтров
-  var filters = document.querySelectorAll('.filters-radio');
-  for (var i = 0; i < filters.length; i++) {
-    var filterBtn = document.getElementById( filters[i].id );
-    filterBtn.addEventListener('click', function() {
-      setActiveFilter(this);
-    });
-  }
+  // проставляем onclick события для фильтров методом делегирования
+  var filtersForm = document.querySelector('.filters');
+  filtersForm.addEventListener('click', function(evt) {
+    var clickedEl = evt.target;
+    setActiveFilter(clickedEl);
+  });
 
   function populatePicsOnScreen() {
     var containerCoordinates = container.getBoundingClientRect();
