@@ -36,8 +36,14 @@
     container.classList.remove('pictures-loading');
   }
 
+  /**
+  /* Отрисовка картинок
+   * @param {Array.<Object>} picturesToRender
+   * @param {int} pageNumber
+   * @param {boolean=} replace - флаг, заставляющий чистить контейнер перед
+   *        добавлением новых картинок
+   */
   function renderPictures(picturesToRender, pageNumber, replace) {
-
     if (replace) {
       container.innerHTML = '';
     }
@@ -45,7 +51,6 @@
 
     var from = pageNumber * PAGE_SIZE;
     var to = from + PAGE_SIZE;
-
     var pagePictures = picturesToRender.slice(from, to);
 
     pagePictures.forEach(function(picture) {
@@ -54,6 +59,7 @@
     });
     container.appendChild(fragment);
   }
+
   var formFilters = document.querySelector('.filters');
   formFilters.classList.remove('hidden');
 
