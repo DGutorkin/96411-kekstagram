@@ -175,6 +175,18 @@
   }
 
   /**
+   * Функция синхронизации ресайзера и формы
+   */
+  function syncResizer() {
+    if (currentResizer) {
+      var constraints = currentResizer.getConstraint();
+      document.getElementById('resize-x').value = constraints.x;
+      document.getElementById('resize-y').value = constraints.y;
+      document.getElementById('resize-size').value = constraints.side;
+    }
+  }
+
+  /**
    * Обработчик изменения изображения в форме загрузки. Если загруженный
    * файл является изображением, считывается исходник картинки, создается
    * Resizer с загруженной картинкой, добавляется в форму кадрирования
@@ -298,6 +310,8 @@
   } else {
     setFilter( docCookies.getItem('filter') );
   }
+
+  window.addEventListener('resizerchange', syncResizer);
 
 
 })();
