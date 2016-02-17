@@ -229,9 +229,26 @@
    * Обработка изменения формы кадрирования. Делает кнопку submit enabled/disabled.
    * @param {Event} evt
    */
-  resizeForm.addEventListener('change', function() {
+  resizeForm.addEventListener('change', function(evt) {
     // вынес в отдельные переменные для лучшей читаемости
     resizeFormIsValid();
+    var constraints = currentResizer.getConstraint();
+
+    var changedElement = evt.target;
+
+    var delta;
+    var newVal = +changedElement.value;
+    switch (changedElement.name) {
+      case 'x': delta = constraints.x - newVal;
+        currentResizer.moveConstraint(delta);
+        break;
+      case 'y': delta = constraints.y - newVal;
+        currentResizer.moveConstraint(false, delta, false);
+        break;
+      case 'size': constraints.side = newVal;
+        currentResizer.setConstraint(constraints.x, constraints.y, constraints.size);
+        break;
+    }
   });
 
   /**
