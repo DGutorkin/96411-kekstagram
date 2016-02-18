@@ -232,21 +232,19 @@
   resizeForm.addEventListener('change', function(evt) {
     // вынес в отдельные переменные для лучшей читаемости
     resizeFormIsValid();
+    // получаем текущие координаты ресайзера
     var constraints = currentResizer.getConstraint();
 
     var changedElement = evt.target;
-
-    var delta;
     var newVal = +changedElement.value;
+
+    // двигаем ресайзер в зависимости от того, какое поле поменялось
     switch (changedElement.name) {
-      case 'x': delta = constraints.x - newVal;
-        currentResizer.moveConstraint(delta);
+      case 'x': currentResizer.moveConstraint(newVal - constraints.x);
         break;
-      case 'y': delta = constraints.y - newVal;
-        currentResizer.moveConstraint(false, delta, false);
+      case 'y': currentResizer.moveConstraint(false, newVal - constraints.y);
         break;
-      case 'size': constraints.side = newVal;
-        currentResizer.setConstraint(constraints.x, constraints.y, constraints.size);
+      case 'size': currentResizer.setConstraint(constraints.x, constraints.y, newVal);
         break;
     }
   });
