@@ -214,6 +214,9 @@
           resizeForm.classList.remove('invisible');
 
           hideMessage();
+          // Вот тут не понимаю, почему синзронизация не может получить
+          // доступ к свежесозданному объекту и вызов syncResizer() не проходит
+          syncResizer();
         };
 
         fileReader.readAsDataURL(element.files[0]);
