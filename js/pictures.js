@@ -1,4 +1,4 @@
-/* global Photo: true */
+/* global Photo: true, Gallery: true */
 'use strict';
 (function() {
   // В задании: "Прячет блок с фильтрами .filters, добавляя ему класс hidden"
@@ -57,7 +57,8 @@
 
     pagePictures.forEach(function(data) {
       var photoElement = new Photo(data);
-      fragment.appendChild( photoElement.render() );
+      photoElement.render();
+      fragment.appendChild( photoElement.element );
     });
     container.appendChild(fragment);
 
@@ -106,6 +107,15 @@
   window.addEventListener('scroll', function() {
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(populatePicsOnScreen, 100);
+  });
+
+  container.addEventListener('click', function(evt) {
+    evt.preventDefault();
+    var photoEl = evt.target.closest('.picture');
+    if (photoEl) {
+      var galleryEl = new Gallery(photoEl);
+      galleryEl.show();
+    }
   });
 
 })();
