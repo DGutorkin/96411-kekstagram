@@ -64,11 +64,7 @@
     });
     container.appendChild(fragment);
 
-    if (pagePictures.length > 0) {
-      return true;
-    } else {
-      return false;
-    }
+    return pagePictures.length > 0 ? true : false;
   }
 
   var formFilters = document.querySelector('.filters');
