@@ -1,3 +1,4 @@
+/* global Photo: true */
 'use strict';
 (function() {
   // В задании: "Прячет блок с фильтрами .filters, добавляя ему класс hidden"
@@ -6,7 +7,7 @@
   var filteredPictures = [];
   var currentPage = 0;
   var PAGE_SIZE = 12;
-  var PICTURE_HEIGHT = 128;
+  var PICTURE_HEIGHT = 182;
   var container = document.querySelector('.pictures');
 
   var scrollTimeout;
@@ -57,9 +58,9 @@
     var to = from + PAGE_SIZE;
     var pagePictures = picturesToRender.slice(from, to);
 
-    pagePictures.forEach(function(picture) {
-      var element = getElementFromTemplate(picture);
-      fragment.appendChild(element);
+    pagePictures.forEach(function(data) {
+      var photoElement = new Photo(data);
+      fragment.appendChild( photoElement.render() );
     });
     container.appendChild(fragment);
 
@@ -72,26 +73,6 @@
 
   var formFilters = document.querySelector('.filters');
   formFilters.classList.remove('hidden');
-
-  function getElementFromTemplate(data) {
-    var template = document.getElementById('picture-template');
-    var element = template.content.children[0].cloneNode(true);
-    element.querySelector('.picture-comments').textContent = data.comments;
-    element.querySelector('.picture-likes').textContent = data.likes;
-
-    var picImage = new Image();
-    picImage.onload = function() {
-      var templateChild = element.firstElementChild;
-      picImage.width = 182;
-      picImage.height = PICTURE_HEIGHT;
-      element.replaceChild(picImage, templateChild);
-    };
-    picImage.onerror = function() {
-      element.classList.add('picture-load-failure');
-    };
-    picImage.src = data.url;
-    return element;
-  }
 
   function setActiveFilter(btn) {
     var filterName = btn.value;
