@@ -1,51 +1,53 @@
 'use strict';
 (function() {
   /**
-  /* @param {Object} photo - фотография по которой прошёл клик
+  * @param {Object} photo - фотография по которой прошёл клик
   * @constructor
   */
   function Gallery(photo) {
+    this.element = document.querySelector('.gallery-overlay');
     this._photo = photo;
+    this._closeBtn = this.element.querySelector('.gallery-overlay-close');
   }
 
   Gallery.prototype = {
-    galleryEl: document.querySelector('.gallery-overlay'),
-    preview: document.querySelector('.gallery-overlay-preview'),
-    /**
-    * Показ галереи
-    */
     show: function() {
-      this.galleryEl.classList.remove('invisible');
-      var openedImage = this.preview.children[0];
+      this.element.classList.remove('invisible');
+
+      var openedImage = this.element.querySelector('img');
       openedImage.src = this._photo.children[0].src;
 
-      this.preview.addEventListener('click', this._onPhotoClick);
-      window.addEventListener('keydown', this._onDocumentKeyDown);
+      // is this way of bind ok?
+      this._closeBtn.addEventListener( 'click', this._onCloseClick.bind(this) );
+      this.element.addEventListener('click', this._onPhotoClick);
+      window.addEventListener( 'keydown', this._onDocumentKeyDown.bind(this) );
     },
 
-    /**
-    * Прячем галерею
-    */
     hide: function() {
-      this.galleryEl.classList.add('invisible');
+      this.element.classList.add('invisible');
 
-      this.preview.removeEventListener('click', this._onPhotoClick);
+      this.element.removeEventListener('click', this._onPhotoClick);
+      this._closeBtn.removeEventListener('click', this._onCloseClick);
       window.removeEventListener('keydown', this._onDocumentKeyDown);
     },
 
     /**
-    * Методы-обработчики событий
+    * Именованые функции для обработчиков событий. Нужны для возможности удаления
+    * этих самых обработчиков при закрытии галереи.
     */
     _onPhotoClick: function(evt) {
       if (evt.target.classList.contains('gallery-overlay-image')) {
         console.log('_onPhotoClick fired on <img> click!');
       }
     },
+
+    _onCloseClick: function() {
+      this.hide();
+    },
+
     _onDocumentKeyDown: function(evt) {
-      console.log(evt);
       if (evt.keyCode === 27) {
-        console.log('_onDocumentKeyDown fired!');
-        Gallery.prototype.hide();
+        this.hide();
       }
     }
   };
