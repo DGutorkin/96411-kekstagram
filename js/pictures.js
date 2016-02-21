@@ -6,17 +6,14 @@
   var pictures = [];
   var filteredPictures = [];
   var currentPage = 0;
+  var scrollTimeout;
   var PAGE_SIZE = 12;
   var PICTURE_HEIGHT = 182;
   var container = document.querySelector('.pictures');
-
-  var scrollTimeout;
-  window.addEventListener('scroll', function() {
-    clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(populatePicsOnScreen, 100);
-  });
+  var filtersForm = document.querySelector('.filters');
 
   getData();
+  filtersForm.classList.remove('hidden');
 
   function getData() {
     //ставим заглушку-загрузчик
@@ -67,9 +64,6 @@
     return pagePictures.length > 0 ? true : false;
   }
 
-  var formFilters = document.querySelector('.filters');
-  formFilters.classList.remove('hidden');
-
   function setActiveFilter(btn) {
     var filterName = btn.value;
     filteredPictures = pictures.slice(0);
@@ -90,13 +84,6 @@
     populatePicsOnScreen();
   }
 
-  // проставляем onclick события для фильтров методом делегирования
-  var filtersForm = document.querySelector('.filters');
-  filtersForm.addEventListener('click', function(evt) {
-    var clickedEl = evt.target;
-    setActiveFilter(clickedEl);
-  });
-
   function populatePicsOnScreen() {
     var containerBottomY = container.getBoundingClientRect().bottom;
     var continueRender = true;
@@ -109,5 +96,16 @@
       containerBottomY = container.getBoundingClientRect().bottom;
     }
   }
+
+  // проставляем onclick события для фильтров методом делегирования
+  filtersForm.addEventListener('click', function(evt) {
+    var clickedEl = evt.target;
+    setActiveFilter(clickedEl);
+  });
+
+  window.addEventListener('scroll', function() {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(populatePicsOnScreen, 100);
+  });
 
 })();
