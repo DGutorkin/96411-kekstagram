@@ -47,7 +47,9 @@
    */
   function renderPictures(picturesToRender, pageNumber, replace) {
     if (replace) {
-      container.innerHTML = '';
+      [].forEach.call(container.childNodes, function(el) {
+        container.removeChild(el);
+      });
     }
     var fragment = document.createDocumentFragment();
 
