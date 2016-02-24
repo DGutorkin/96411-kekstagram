@@ -4,9 +4,8 @@
   * @param {Object} photo - фотография по которой прошёл клик
   * @constructor
   */
-  function Gallery(photo) {
+  function Gallery() {
     this.element = document.querySelector('.gallery-overlay');
-    this._photo = photo;
     this._closeBtn = this.element.querySelector('.gallery-overlay-close');
   }
 
@@ -15,7 +14,7 @@
       this.element.classList.remove('invisible');
 
       var openedImage = this.element.querySelector('img');
-      openedImage.src = this._photo.children[0].src;
+      openedImage.src = this.data.url;
 
       // is this way of bind ok?
       this._closeBtn.addEventListener( 'click', this._onCloseClick.bind(this) );

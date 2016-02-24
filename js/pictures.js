@@ -11,6 +11,7 @@
   var PICTURE_HEIGHT = 182;
   var container = document.querySelector('.pictures');
   var filtersForm = document.querySelector('.filters');
+  var gallery = new Gallery();
 
   getData();
   filtersForm.classList.remove('hidden');
@@ -47,7 +48,9 @@
    */
   function renderPictures(picturesToRender, pageNumber, replace) {
     if (replace) {
-      container.innerHTML = '';
+      [].forEach.call(container.childNodes, function(el) {
+        container.removeChild(el);
+      });
     }
     var fragment = document.createDocumentFragment();
 
@@ -58,7 +61,14 @@
     pagePictures.forEach(function(data) {
       var photoElement = new Photo(data);
       photoElement.render();
+      photoElement.element.addEventListener('click', function(evt) {
+        evt.preventDefault();
+
+        gallery.data = photoElement._data;
+        gallery.show();
+      });
       fragment.appendChild( photoElement.element );
+
     });
     container.appendChild(fragment);
 
@@ -107,15 +117,6 @@
   window.addEventListener('scroll', function() {
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(populatePicsOnScreen, 100);
-  });
-
-  container.addEventListener('click', function(evt) {
-    evt.preventDefault();
-    var photoEl = evt.target.closest('.picture');
-    if (photoEl) {
-      var galleryEl = new Gallery(photoEl);
-      galleryEl.show();
-    }
   });
 
 })();
