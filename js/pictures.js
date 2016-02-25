@@ -1,4 +1,4 @@
-/* global Photo: true */
+/* global Photo: true, Gallery: true */
 'use strict';
 (function() {
   // В задании: "Прячет блок с фильтрами .filters, добавляя ему класс hidden"
@@ -11,6 +11,7 @@
   var PICTURE_HEIGHT = 182;
   var container = document.querySelector('.pictures');
   var filtersForm = document.querySelector('.filters');
+  var gallery = new Gallery();
 
   getData();
   filtersForm.classList.remove('hidden');
@@ -59,7 +60,15 @@
 
     pagePictures.forEach(function(data) {
       var photoElement = new Photo(data);
-      fragment.appendChild( photoElement.render() );
+      photoElement.render();
+      photoElement.element.addEventListener('click', function(evt) {
+        evt.preventDefault();
+
+        gallery.data = photoElement._data;
+        gallery.show();
+      });
+      fragment.appendChild( photoElement.element );
+
     });
     container.appendChild(fragment);
 
