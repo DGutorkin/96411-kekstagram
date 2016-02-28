@@ -1,12 +1,11 @@
-/* global Photo: true, Gallery: true */
+/* global Photo: true, Gallery: true, Video: true */
 'use strict';
 (function() {
-  // В задании: "Прячет блок с фильтрами .filters, добавляя ему класс hidden"
-  // Но в коде он уже hidden
   var pictures = [];
-  var filteredPictures = [];
+  var renderedPhotos = [];
   var currentPage = 0;
   var scrollTimeout;
+  var continueRender = false;
   var PAGE_SIZE = 12;
   var PICTURE_HEIGHT = 182;
   var container = document.querySelector('.pictures');
@@ -21,12 +20,13 @@
     container.classList.add('pictures-loading');
 
     var xhr = new XMLHttpRequest();
+
+    //xhr.open('GET', 'http://127.0.0.1:3000/pictures.json');
     xhr.open('GET', 'http://o0.github.io/assets/json/pictures.json');
     xhr.timeout = 10000;
     xhr.onload = function(evt) {
       pictures = JSON.parse(evt.target.response);
-      filteredPictures = pictures.slice(0);
-      renderPictures(pictures, 0, true);
+      continueRender = prepareObjects(0);
       // размазываем по ширине экрана, если необходимо
       populatePicsOnScreen();
     };
@@ -38,72 +38,89 @@
   }
 
   /**
-  /* Отрисовка картинок
-   * @param {Array.<Object>} picturesToRender
-   * @param {int} pageNumber
+  * Отображение картинок на странице из массива renderedPhotos
    * @param {boolean=} replace - флаг, заставляющий чистить контейнер перед
    *        добавлением новых картинок
-   * @returns {boolean} continueRender - возвращает истину, если есть массив
-   * pagePictures не пустой, т.е. есть ещё что порендерить :)
    */
-  function renderPictures(picturesToRender, pageNumber, replace) {
+  function renderPictures(replace) {
     if (replace) {
-      [].forEach.call(container.childNodes, function(el) {
-        container.removeChild(el);
+      [].forEach.call(renderedPhotos, function(photoObj) {
+        container.removeChild(photoObj.element);
       });
     }
     var fragment = document.createDocumentFragment();
-
-    var from = pageNumber * PAGE_SIZE;
-    var to = from + PAGE_SIZE;
-    var pagePictures = picturesToRender.slice(from, to);
-
-    pagePictures.forEach(function(data) {
-      var photoElement = new Photo(data);
-      photoElement.render();
-      photoElement.element.addEventListener('click', function(evt) {
-        evt.preventDefault();
-
-        gallery.data = photoElement._data;
-        gallery.show();
-      });
-      fragment.appendChild( photoElement.element );
-
+    renderedPhotos.forEach(function(photoObj) {
+      fragment.appendChild( photoObj.element );
     });
     container.appendChild(fragment);
-
-    return pagePictures.length > 0 ? true : false;
   }
+
+  /**
+  * Обрабатывает массив JSON-данных, превращая его элементы в объекты Photo.
+  * @param {integer} pageNumber - номер страницы, для последовательной обработки.
+  * @returns {boolean} continueRender - возвращает истину, если массив сырых
+  * данных имеет столько же элементов, сколько массив объектов
+  * => больше нечего "инстанциировать"
+  */
+
+  function prepareObjects(pageNumber) {
+    var from = pageNumber * PAGE_SIZE;
+    var to = from + PAGE_SIZE;
+    var pagePictures = pictures.slice(from, to);
+
+    pagePictures.forEach(function(data) {
+      var photoElement = data.url.search(/mp4/) < 0 ? new Photo() : new Video();
+      photoElement.setData(data);
+      photoElement.render();
+      photoElement.element.onClick = function() {
+        gallery.setCurrentPicture( renderedPhotos.indexOf(photoElement) );
+        gallery.show();
+      };
+      renderedPhotos.push(photoElement);
+    });
+    gallery.setPictures(renderedPhotos);
+    renderPictures();
+
+    return pictures.length !== renderedPhotos.length;
+  }
+
+  /**
+  * Сортирует массив с уже обработанными фотографиями в зависимости от
+  * выбранного фильтра. В конце работы вызывает renderPictures, обновляя
+  * тем самым контейнер и отрисовывает заново отсортированные фотографии
+  * @param {HTMLElement} btn - нажатая кнопка фильтра.
+  */
 
   function setActiveFilter(btn) {
     var filterName = btn.value;
-    filteredPictures = pictures.slice(0);
     switch (filterName) {
-      case 'discussed': filteredPictures.sort(function(a, b) {
-        return parseInt(b.comments, 10) - parseInt(a.comments, 10);
+      case 'discussed': renderedPhotos.sort(function(a, b) {
+        return b.getComments() - a.getComments();
       });
         break;
-      case 'new': filteredPictures.sort(function(a, b) {
-        return new Date(b.date) - new Date(a.date);
+      case 'new': renderedPhotos.sort(function(a, b) {
+        return b.getDate() - a.getDate();
       });
         break;
-      default: filteredPictures = pictures.slice(0);
+      default: renderedPhotos.sort(function(a, b) {
+        return b.getLikes() - a.getLikes();
+      });
         break;
     }
-    currentPage = 0;
-    renderPictures(filteredPictures, currentPage, true);
-    populatePicsOnScreen();
+    renderPictures(true);
   }
 
+  /**
+  * Функция заполнения экрана картинками по PAGE_SIZE раз за итерацию.
+  * Т.к. футера относительно которого было бы удобно спозиционировать нет, то
+  * рендерим след.порцию по достижению нижней границы контейнера - высота картинки /2
+  * и только в том случае, если ещё есть что рендерить (continueRender = true)
+  */
   function populatePicsOnScreen() {
     var containerBottomY = container.getBoundingClientRect().bottom;
-    var continueRender = true;
-    // Т.к. футера относительно которого было бы удобно спозиционировать нет, то
-    // рендерим след.порцию по достижению нижней границы контейнера + высота картинки /2
-    // и только в том случае, если ещё есть что рендерить (continueRender = true)
-    while (continueRender && containerBottomY - PICTURE_HEIGHT / 2 <= window.innerHeight) {
-      continueRender = renderPictures(filteredPictures, ++currentPage);
-      // пересчитываем координаты контейнера
+    while (continueRender && containerBottomY - PICTURE_HEIGHT / 2 <= window.innerHeight ) {
+      // обновляем контейнер фотками и пересчитываем его координаты
+      continueRender = prepareObjects(++currentPage);
       containerBottomY = container.getBoundingClientRect().bottom;
     }
   }
@@ -118,5 +135,7 @@
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(populatePicsOnScreen, 100);
   });
+
+  window.rP = renderedPhotos;
 
 })();
