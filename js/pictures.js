@@ -50,7 +50,9 @@ var Video = require('video');
       continueRender = prepareObjects(0);
       // размазываем по ширине экрана, если необходимо
       populatePicsOnScreen();
-      setActiveFilter( localStorage.getItem('currentFilter') || 'popular' );
+      var filterName = localStorage.getItem('currentFilter') || 'popular';
+      setActiveFilter(filterName);
+      document.getElementById('filter-' + filterName).checked = true;
       toggleGallery();
     };
     xhr.onerror = function() {
@@ -133,7 +135,6 @@ var Video = require('video');
         break;
     }
     localStorage.setItem('currentFilter', filterName);
-    document.getElementById('filter-' + filterName).checked = true;
     renderPictures(true);
   }
 
