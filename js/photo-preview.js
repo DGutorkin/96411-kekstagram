@@ -3,8 +3,8 @@
 var inherit = require('inherit');
 var PhotoBase = require('photo-base');
 
-/**
-* @param {Object} data
+/** Объект, используемый для показа фото/видео в галерее
+* @module PhotoPreview
 * @constructor
 * @extends {PhotoBase}
 */
@@ -12,6 +12,11 @@ function PhotoPreview() {
 }
 
 inherit(PhotoPreview, PhotoBase);
+
+/**
+* Отрисовывает лайк, в зависимости от данных в объкете
+* и показывает/прячет видео-блок, проверяя mediatype
+*/
 
 PhotoPreview.prototype.render = function(el, noauto) {
   el.querySelector('.likes-count').textContent = this.getLikes();
@@ -31,10 +36,6 @@ PhotoPreview.prototype.render = function(el, noauto) {
     el.querySelector('.gallery-overlay-video').autoplay = noauto ? false : true;
     el.querySelector('.gallery-overlay-video').src = this.getSrc();
   }
-};
-
-PhotoPreview.prototype.remove = function() {
-  this.setData(null);
 };
 
 module.exports = PhotoPreview;

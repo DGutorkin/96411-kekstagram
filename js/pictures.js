@@ -5,13 +5,31 @@ var Gallery = require('gallery');
 var Video = require('video');
 
 (function() {
+  /** @type {Array.<Object>} - массив JSON-данных, получаемых по AJAX */
   var pictures = [];
+
+  /** @type {Array.<Photo|Video>} - массив обработанных медиа-объектов */
   var renderedPhotos = [];
+
+  /** @type {integer} текущая страница - сдвиг для slice по массиву pictures */
   var currentPage = 0;
+
+  /** @type {integer} используется для реализации throttling */
   var scrollTimeout;
+
+  /** @type {boolean} есть ли в сырых json-данных pictures необработанные объекты? */
   var continueRender = false;
+
+  /** @constant кол-во отрисовываемых обхектов за раз, при заполнении странице
+  * @type {integer}
+  */
   var PAGE_SIZE = 12;
+
+  /** @constant высота картинки в галерее
+  * @type {integer}
+  */
   var PICTURE_HEIGHT = 182;
+
   var container = document.querySelector('.pictures');
   var filtersForm = document.querySelector('.filters');
   var gallery = new Gallery();
@@ -25,7 +43,6 @@ var Video = require('video');
 
     var xhr = new XMLHttpRequest();
 
-    //xhr.open('GET', 'http://127.0.0.1:3000/pictures.json');
     xhr.open('GET', 'http://o0.github.io/assets/json/pictures.json');
     xhr.timeout = 10000;
     xhr.onload = function(evt) {
@@ -129,12 +146,15 @@ var Video = require('video');
     }
   }
 
-  // проставляем onclick события для фильтров методом делегирования
+  /** проставляем onclick события для фильтров методом делегирования */
   filtersForm.addEventListener('click', function(evt) {
     var clickedEl = evt.target;
     setActiveFilter(clickedEl);
   });
 
+  /**
+  * Throttling для скролла по странице и заполнение фотографиями порциями по PAGE_SIZE
+  */
   window.addEventListener('scroll', function() {
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(populatePicsOnScreen, 100);

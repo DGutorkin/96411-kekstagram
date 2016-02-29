@@ -3,8 +3,7 @@
 var inherit = require('inherit');
 var Photo = require('photo');
 
-/**
-* @param {Object} data
+/** Объект, представляющий видео-элемент в галерее
 * @constructor
 * @extends {Photo}
 */
@@ -14,7 +13,7 @@ function Video() {
 inherit(Video, Photo);
 
 /**
-* Подгрузка изображения и создание картинки из шаблона
+* Подгрузка данных и создание видео-элемента
 */
 Video.prototype.render = function() {
   var template = document.getElementById('picture-template');
