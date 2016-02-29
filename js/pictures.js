@@ -51,6 +51,7 @@ var Video = require('video');
       // размазываем по ширине экрана, если необходимо
       populatePicsOnScreen();
       setActiveFilter( localStorage.getItem('currentFilter') || 'popular' );
+      toggleGallery();
     };
     xhr.onerror = function() {
       container.classList.add('pictures-failure');
@@ -96,7 +97,8 @@ var Video = require('video');
       photoElement.render();
       photoElement.element.onClick = function() {
         gallery.setCurrentPicture( renderedPhotos.indexOf(photoElement) );
-        gallery.show();
+        location.hash = 'photo/' + photoElement.getSrc();
+        //gallery.show();
       };
       renderedPhotos.push(photoElement);
     });
@@ -150,6 +152,20 @@ var Video = require('video');
     }
   }
 
+  /**
+  * @function toggleGallery ищет совпадение с regExp в строке браузера,
+  *                         если находит - открывает галерею.
+  */
+
+  function toggleGallery() {
+    var regExp = /#photo\/(\S+)/;
+    var src = location.hash.match(regExp);
+    if (src && src[1]) {
+      gallery.setCurrentPicture(src[1]);
+      gallery.show();
+    }
+  }
+
   /** проставляем onclick события для фильтров методом делегирования */
   filtersForm.addEventListener('click', function(evt) {
     var clickedEl = evt.target;
@@ -163,5 +179,10 @@ var Video = require('video');
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(populatePicsOnScreen, 100);
   });
+
+  /**
+  * Открываем галерею при изменнии hash в строке браузера
+  */
+  window.addEventListener('hashchange', toggleGallery);
 
 })();
