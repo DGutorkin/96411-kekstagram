@@ -50,6 +50,7 @@ var Video = require('video');
       continueRender = prepareObjects(0);
       // размазываем по ширине экрана, если необходимо
       populatePicsOnScreen();
+      setActiveFilter( localStorage.getItem('currentFilter') || 'popular' );
     };
     xhr.onerror = function() {
       container.classList.add('pictures-failure');
@@ -109,11 +110,12 @@ var Video = require('video');
   * Сортирует массив с уже обработанными фотографиями в зависимости от
   * выбранного фильтра. В конце работы вызывает renderPictures, обновляя
   * тем самым контейнер и отрисовывает заново отсортированные фотографии
-  * @param {HTMLElement} btn - нажатая кнопка фильтра.
+  * @param {HTMLElement|string} filter - нажатая кнопка фильтра, либо строка
+  *                                      с именем фильтра
   */
 
-  function setActiveFilter(btn) {
-    var filterName = btn.value;
+  function setActiveFilter(filter) {
+    var filterName = typeof filter === 'object' ? filter.value : filter;
     switch (filterName) {
       case 'discussed': renderedPhotos.sort(function(a, b) {
         return b.getComments() - a.getComments();
@@ -123,11 +125,13 @@ var Video = require('video');
         return b.getDate() - a.getDate();
       });
         break;
-      default: renderedPhotos.sort(function(a, b) {
+      case 'popular': renderedPhotos.sort(function(a, b) {
         return b.getLikes() - a.getLikes();
       });
         break;
     }
+    localStorage.setItem('currentFilter', filterName);
+    document.getElementById('filter-' + filterName).checked = true;
     renderPictures(true);
   }
 
