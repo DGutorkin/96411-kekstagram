@@ -1,11 +1,12 @@
-/* global docCookies: true, Resizer: true */
+/* global docCookies */
+'use strict';
+
+var Resizer = require('resizer');
 
 /**
  * @fileoverview
  * @author Igor Alexeenko (o0)
  */
-
-'use strict';
 
 (function() {
   /** @enum {string} */
