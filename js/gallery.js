@@ -34,7 +34,6 @@ Gallery.prototype = {
   show: function() {
     this.element.classList.remove('invisible');
 
-    // is this way of bind ok?
     this._closeBtn.addEventListener('click', this._onCloseClick);
     this._likeBtn.addEventListener('click', this._onLikeClick);
     this._photo.addEventListener('click', this._onPhotoClick);
@@ -43,7 +42,7 @@ Gallery.prototype = {
   },
 
   /**
-  * Прячет галерею и удаляет eventListeners
+  * Прячет галерею и удаляет eventListeners, сбрасывает location.hash
   */
   hide: function() {
     this.element.classList.add('invisible');
@@ -52,6 +51,7 @@ Gallery.prototype = {
     this._closeBtn.removeEventListener('click', this._onCloseClick);
     this._likeBtn.removeEventListener( 'click', this._onLikeClick );
     window.removeEventListener('keydown', this._onDocumentKeyDown);
+    location.hash = '';
   },
 
   /**
@@ -63,23 +63,43 @@ Gallery.prototype = {
   },
 
   /**
-  * Подменяет src, кол-во лайков и комментов у отображаемой фотографии.
-  * @param {integer} ind - индекс элемента Photo в this.data
+  * @param {integer|string} ind - индекс элемента Photo в this.data или
+  * getSrc() этого элемента.
   */
   setCurrentPicture: function(ind) {
-    preview.setData(this.data[ind].getData());
+    if (typeof ind === 'number') {
+      preview.setData(this.data[ind].getData());
+      this.currentIndex = ind;
+    } else if (typeof ind === 'string') {
+      var item = this.data.filter(function( obj ) {
+        return obj.getSrc() === ind;
+      })[0];
+      this.currentIndex = this.data.indexOf(item);
+      preview.setData(item.getData());
+    }
     if (!preview) {
       return false;
     }
-    this.currentIndex = ind;
     preview.render(this.element);
   },
+
+  /**
+  * Устанавливает hash в строке браузера в соответствии с getSrc()
+  * элемента, индекс которого передан
+  * @param {integer} ind
+  */
+  updateHash: function(ind) {
+    location.hash = location.hash = 'photo/' + this.data[ind].getSrc();
+  },
+
   /**
   * Именованые функции для обработчиков событий. Нужны для возможности удаления
   * этих самых обработчиков при закрытии галереи.
   */
   _onPhotoClick: function() {
-    this.setCurrentPicture(++this.currentIndex);
+    if (this.currentIndex < this.data.length - 1) {
+      this.updateHash(++this.currentIndex);
+    }
   },
 
   _onCloseClick: function() {
@@ -119,16 +139,17 @@ Gallery.prototype = {
   /**
   * Клавиатурные события: переключение объектов галереи, выход из галереи
   */
-
   _onDocumentKeyDown: function(evt) {
     this._video.pause();
     switch (evt.keyCode) {
       case KEYCODE.ESC: this.hide();
         break;
-      case KEYCODE.LEFT: this.setCurrentPicture(--this.currentIndex);
+      case KEYCODE.LEFT: if (this.currentIndex > 0) {
+        this.updateHash(--this.currentIndex);
+      }
         break;
       case KEYCODE.RIGHT: if (this.currentIndex < this.data.length - 1) {
-        this.setCurrentPicture(++this.currentIndex);
+        this.updateHash(++this.currentIndex);
       }
         break;
     }
