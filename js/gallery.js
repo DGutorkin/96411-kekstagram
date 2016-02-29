@@ -97,7 +97,9 @@ Gallery.prototype = {
   * этих самых обработчиков при закрытии галереи.
   */
   _onPhotoClick: function() {
-    this.setCurrentPicture(++this.currentIndex);
+    if (this.currentIndex < this.data.length - 1) {
+      this.updateHash(++this.currentIndex);
+    }
   },
 
   _onCloseClick: function() {
@@ -142,7 +144,9 @@ Gallery.prototype = {
     switch (evt.keyCode) {
       case KEYCODE.ESC: this.hide();
         break;
-      case KEYCODE.LEFT: this.updateHash(--this.currentIndex);
+      case KEYCODE.LEFT: if (this.currentIndex > 0) {
+        this.updateHash(--this.currentIndex);
+      }
         break;
       case KEYCODE.RIGHT: if (this.currentIndex < this.data.length - 1) {
         this.updateHash(++this.currentIndex);
