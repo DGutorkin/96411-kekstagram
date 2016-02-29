@@ -3,8 +3,8 @@
 var inherit = require('inherit');
 var PhotoBase = require('photo-base');
 
-/**
-* @param {Object} data
+/** Класс, представляющий фотографию на странице.
+* @module Photo
 * @constructor
 * @extends {PhotoBase}
 */
@@ -38,10 +38,7 @@ Photo.prototype.render = function() {
   return this.element;
 };
 
-Photo.prototype.remove = function() {
-  this.element.removeEventListener('click', this._onClick);
-};
-
+/** @function updateLikes - обновление кол-ва лайков в галерее */
 Photo.prototype.updateLikes = function() {
   this.element.querySelector('.picture-likes').textContent = this.getLikes();
 };

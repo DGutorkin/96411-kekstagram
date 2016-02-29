@@ -7,7 +7,7 @@ var KEYCODE = {
   'LEFT': 37,
   'RIGHT': 39
 };
-/**
+/** Класс, представляющий галерею.
 * @param {Object} photo - фотография по которой прошёл клик
 * @constructor
 */
@@ -25,7 +25,12 @@ function Gallery() {
 }
 
 Gallery.prototype = {
+  /** @type {integer=} - индекс объекта PhotoBase в отрендеренном массиве */
   currentIndex: null,
+
+  /**
+  * Показывает галерею и проставляет eventListeners
+  */
   show: function() {
     this.element.classList.remove('invisible');
 
@@ -37,6 +42,9 @@ Gallery.prototype = {
     window.addEventListener('keydown', this._onDocumentKeyDown);
   },
 
+  /**
+  * Прячет галерею и удаляет eventListeners
+  */
   hide: function() {
     this.element.classList.add('invisible');
     this._photo.removeEventListener('click', this._onPhotoClick);
@@ -44,11 +52,10 @@ Gallery.prototype = {
     this._closeBtn.removeEventListener('click', this._onCloseClick);
     this._likeBtn.removeEventListener( 'click', this._onLikeClick );
     window.removeEventListener('keydown', this._onDocumentKeyDown);
-    //preview.remove();
   },
 
   /**
-  * Сохраняет массив с отрендеренными фотографиями в объекте
+  * Сохраняет массив с отрендеренными фотографиями в объекте (this.data)
   * @param {Array.<Photo>} photos
   */
   setPictures: function(photos) {
@@ -78,6 +85,10 @@ Gallery.prototype = {
   _onCloseClick: function() {
     this.hide();
   },
+
+  /**
+  * Обработчик кликов лайка в галерее
+  */
   _onLikeClick: function(evt) {
     var btn = evt.target;
     if (btn.classList.contains('likes-count-liked')) {
@@ -91,6 +102,10 @@ Gallery.prototype = {
     }
     this.data[this.currentIndex].updateLikes();
   },
+
+  /**
+  * Управление проигрыванием видео.
+  */
   _onVideoClick: function(evt) {
     if (evt.target.tagName === 'VIDEO') {
       if (this.paused) {
@@ -100,6 +115,10 @@ Gallery.prototype = {
       }
     }
   },
+
+  /**
+  * Клавиатурные события: переключение объектов галереи, выход из галереи
+  */
 
   _onDocumentKeyDown: function(evt) {
     this._video.pause();
