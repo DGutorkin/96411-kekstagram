@@ -1,5 +1,9 @@
-/* global Photo: true, Gallery: true, Video: true */
 'use strict';
+
+var Photo = require('photo');
+var Gallery = require('gallery');
+var Video = require('video');
+
 (function() {
   var pictures = [];
   var renderedPhotos = [];
@@ -135,7 +139,5 @@
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(populatePicsOnScreen, 100);
   });
-
-  window.rP = renderedPhotos;
 
 })();
